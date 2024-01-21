@@ -43,6 +43,9 @@ def defense(monster_name,mond):
         pri('hp:', hp)
     return hp
 
+def plus():
+    return 7
+
 def att(monster_name,mon):
     critical=False
     accuracy=hr_my
