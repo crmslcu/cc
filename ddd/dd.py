@@ -35,9 +35,9 @@ def att(mon,mond):
             mond = mond + random.randint(-5, 5)
             print(f"{mond} suffered damage.")
             hp = hp - mond
-                if hp <= 0:
-                    life = False
-                    mon_life = False 
+            if hp <= 0:
+                life = False
+                mon_life = False 
     return damage
 
 

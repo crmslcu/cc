@@ -5,37 +5,106 @@ def pri(*args):
     output = ' '.join(map(str, args))
     print(output)
     input()
-lv=10
-sd=int((((lv*5)**2/1000)+lv*5)/30 + (lv*5/200))
+
+#lv=레벨, sd=min damage, bd=max damage, cri_my= 내 크리티컬 확률, mhp=max bp
+#hr_my= 내 명중률
+    
+lv=1
+sd=int(((((lv*5)**2/1000)+lv*5)/30 + (lv*5/200))+1)
 bd=int((((lv*5)**2/1000)+lv*5))
-cri_my=0
+cri_my=50
+hr_my=10
+avoid_my=100
 mhp=int(math.log(lv)*(30+lv*6))+50
 hp=mhp
 life=True
-mb={'타우로':(300,100)}
 
-def defense(mond):
+#mb=momster_data_base
+#0=체력, 1=공격력, 2=회피율, 3=명중률
+
+mb={'타우로':(100,10,5,10),'콜드아이':(50,5,10,5)}
+
+def defense(monster_name,mond):
     global hp
-    mond=mond+random.randint(-5,5)
-    pri(mond,'의 피해를 입었다.')
-    hp=hp-mond
-    return hp
-    
-def att(mon):
-    critical=False
-    damage = random.randint(sd, bd)
-    cri=random.randint(1,100)
-    if  cri_my > cri :
-        critical==True
-        print('크리티컬!')
-        damage=damage*2
+    hit_me=random.randint(1,100)
+    accuracy_mon=mb[monster_name][3]
+    if hit_me >= accuracy_mon-avoid_my:
+        mond=mb[monster_name][1]+random.randint(-5,5)
+        pri('\033[35m'+str(mond)+'의 피해를 입었다.' + '\033[0m')
+        hp=hp-mond
+        if hp>=0:
+            pri('hp:', hp)
+        else:
+            hp<=0
+            pri('hp:',str(0))
+            pri('사망')
     else:
-        critical==False
-    mon=mon-damage
-    pri(damage,'의 피해를 주었습니다.')
+        pri('피했다.')
+        pri('hp:', hp)
+    return hp
+
+def att(monster_name,mon):
+    critical=False
+    accuracy=hr_my
+    avoid=mb[monster_name][2]
+    hit_mon=random.randint(1,100)
+
+    if hit_mon <= accuracy-avoid:
+        damage = random.randint(sd, bd)
+        cri=random.randint(1,100)
+        if  cri_my > cri :
+            critical==True
+            print('\033[31m'+'크리티컬!'+'\033[0m')
+            damage=damage*2
+            dm='\033[31m' + str(damage) + '의 피해를 입혔습니다.' + '\033[0m'
+        if damage == 0 and not critical:
+            dm = '\033[33m' + 'Miss' + '\033[0m'
+            pri('몬스터 체력:', mon)
+        else:
+            critical==False
+            dm='\033[33m' + str(damage) + '의 피해를 입혔습니다.' + '\033[0m'
+        
+        mon=mon-damage
+        pri(dm)
+        if mon>=0:
+            pri('몬스터 체력:', mon)
+        else:
+            mon<=0
+            pri('몬스터 체력:',str(0))
+            pri('적 처치')
+
+    else:
+        pri('\033[33m' + 'Miss' + '\033[0m')
+        pri('몬스터 체력:', mon)
     return mon
 
-print(sd,bd,mhp)
+
+#drop_ls=몬스터별 드랍 테이블
+
+drop_ls = {
+    '타우드랍': {
+        '뇌전 수리검': 0.1,
+        '황갑충':0.01,
+        '고깔모자':1,
+        '타우로마시스의 뿔':98.89
+    },
+    '콜드드랍': {
+        '하얀포션': 50,
+        '콜드아이의 꼬리':50
+    }
+}
+
+
+def random_item(monster):
+    items = drop_ls.get(monster, {})
+    
+    if items:
+        item_drop = random.choices(list(items.keys()), weights=list(items.values()), k=1)[0]
+        return item_drop
+    else:
+        return None
+
+print(sd,bd,mhp,hr_my)
 
 pri('어느날 대머리 도적이 살았습니다.')
 
@@ -67,25 +136,25 @@ while 목표달성 != True:
         pri('여기가 저주받은 신전이구나.')
         pri('대머리 도적은 자신의 황갑충을 매만지며 창을들고 설쳐대는 타우로마시스의 대가리에 뇌전수리검을 던졌다.')
         mon_life = True
-        mon=mb['타우로'][0]
+        monster_name='콜드아이'
+        mon=mb[monster_name][0]
         while mon_life == True and life == True:
             if  mon <= 0:
-                pri('타우사망')
                 mon_life=False
             elif hp<=0:
-                pri('사망')
                 life=False
             else:
-                mon=att(mon)
+                mon=att(monster_name,mon)
                 if mon >=0:
-                    defense(mb['타우로'][1])
+                    defense(mb[monster_name],mb[monster_name][1])
+        monster_name='콜드드랍'
+        item=random_item(monster_name)
+        pri('획득:',item)
         sc=5
-        
-
     elif sc==5:
-        print("일비 표창을 획득했다",'공격력이 3증가했다')
         sd= sd+3
         목표달성=True
 
 
+        
         
