@@ -6,15 +6,15 @@ def pri(*args):
     print(output)
     input()
 
-#lv=레벨, sd=min damage, bd=max damage, cri_my= 내 크리티컬 확률, mhp=max bp
-#hr_my= 내 명중률
+#lv=레벨, sd=min damage, bd=max damage, cri_my= 크리티컬 확률, mhp=max bp
+#hr_my= 명중률, avoid_my= 회피율
     
-lv=1
+lv=100
 sd=int(((((lv*5)**2/1000)+lv*5)/30 + (lv*5/200))+1)
 bd=int((((lv*5)**2/1000)+lv*5))
 cri_my=50
 hr_my=10
-avoid_my=100
+avoid_my=60
 mhp=int(math.log(lv)*(30+lv*6))+50
 hp=mhp
 life=True
@@ -22,14 +22,17 @@ life=True
 #mb=momster_data_base
 #0=체력, 1=공격력, 2=회피율, 3=명중률
 
-mb={'타우로':(100,10,5,10),'콜드아이':(50,5,10,5)}
+mb={'타우로':(10000,10,5,70),'콜드아이':(50,5,10,10)}
+
+
 
 def defense(monster_name,mond):
     global hp
     hit_me=random.randint(1,100)
     accuracy_mon=mb[monster_name][3]
-    if hit_me >= accuracy_mon-avoid_my:
-        mond=mb[monster_name][1]+random.randint(-5,5)
+    final_avoid=max(1,avoid_my-accuracy_mon)
+    if hit_me >=final_avoid:
+        mond=mond+random.randint(-5,5)
         pri('\033[35m'+str(mond)+'의 피해를 입었다.' + '\033[0m')
         hp=hp-mond
         if hp>=0:
@@ -43,16 +46,13 @@ def defense(monster_name,mond):
         pri('hp:', hp)
     return hp
 
-def plus():
-    return 7
-
 def att(monster_name,mon):
     critical=False
-    accuracy=hr_my
-    avoid=mb[monster_name][2]
+    avoid_mon=mb[monster_name][2]
+    final_accuracy=max(1,hr_my-avoid_mon)
     hit_mon=random.randint(1,100)
 
-    if hit_mon <= accuracy-avoid:
+    if hit_mon <= final_accuracy:
         damage = random.randint(sd, bd)
         cri=random.randint(1,100)
         if  cri_my > cri :
@@ -139,22 +139,24 @@ while 목표달성 != True:
         pri('여기가 저주받은 신전이구나.')
         pri('대머리 도적은 자신의 황갑충을 매만지며 창을들고 설쳐대는 타우로마시스의 대가리에 뇌전수리검을 던졌다.')
         mon_life = True
-        monster_name='콜드아이'
+        monster_name='타우로'
         mon=mb[monster_name][0]
+        mond=mb[monster_name][1]
         while mon_life == True and life == True:
             if  mon <= 0:
                 mon_life=False
+                monster_drop='콜드드랍'
+                item=random_item(monster_drop)
+                pri('획득:',item)
             elif hp<=0:
                 life=False
             else:
                 mon=att(monster_name,mon)
                 if mon >=0:
-                    defense(mb[monster_name],mb[monster_name][1])
-        monster_name='콜드드랍'
-        item=random_item(monster_name)
-        pri('획득:',item)
+                    defense(monster_name,mond)    
         sc=5
     elif sc==5:
+        pri('dd')
         sd= sd+3
         목표달성=True
 
